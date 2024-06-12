@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-const Search = () => {
+const Record = () => {
   return (
     <View style={{ alignItems: 'center' }}>
       <Text>Search</Text>
@@ -9,5 +9,5 @@ const Search = () => {
   );
 };
 
-export default Search;
+export default Record;
 

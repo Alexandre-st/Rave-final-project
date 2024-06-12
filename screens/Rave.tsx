@@ -3,12 +3,12 @@ import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 
-const Favorites = () => {
+const Rave = () => {
   const navigation = useNavigation();
 
   return (
-    <Text>Favorites page à modifier</Text>
+    <Text>Rave</Text>
   );
 }
  
-export default Favorites;
+export default Rave;

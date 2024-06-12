@@ -5,9 +5,9 @@ import { Image } from 'react-native';
 // import Detail from './components/Detail';
 // import DetailArtist from './components/DetailArtist';
 // import DetailMusic from './components/DetailMusic';
-import Favorites from './screens/Favorites';
 import Home from './screens/Home';
-import Search from './screens/Search';
+import Rave from './screens/Rave';
+import Record from './screens/Record';
 import { RootStackParamList } from './types/typesFile';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -31,8 +31,8 @@ const Navigator = () => {
         }}
       />
       <Tab.Screen 
-        name='Search' 
-        component={Search} 
+        name='Record' 
+        component={Record} 
         options={{
           tabBarIcon: ({ size, focused, color}) => {
             return (
@@ -45,8 +45,8 @@ const Navigator = () => {
         }}
       />
       <Tab.Screen 
-        name="Favorites" 
-        component={Favorites} 
+        name="Rave" 
+        component={Rave} 
         options={{
           tabBarIcon: ({ size, focused, color}) => {
             return (
@@ -66,11 +66,7 @@ const  App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='Home'>
-        <Stack.Screen name='TabHome' component={Navigator} options={{ headerShown: false }} />
-        <Stack.Screen name='Search' component={Search} />
-        {/* <Stack.Screen name='Detail' component={Detail} />
-        <Stack.Screen name='DetailArtist' component={DetailArtist} />
-        <Stack.Screen name='DetailMusic' component={DetailMusic} /> */}
+        <Stack.Screen name='Home' component={Navigator} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
