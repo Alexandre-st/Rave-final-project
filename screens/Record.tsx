@@ -3,8 +3,8 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TextInput, TouchableOpac
 
 const Record = () => {
   return (
-    <View style={{ alignItems: 'center' }}>
-      <Text>Search</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Enregistrement des clips audios</Text>
     </View>
   );
 };

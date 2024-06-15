@@ -1,17 +1,24 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import * as Notifications from 'expo-notifications';
+import { useEffect } from 'react';
 import { Image } from 'react-native';
-// import Detail from './components/Detail';
-// import DetailArtist from './components/DetailArtist';
-// import DetailMusic from './components/DetailMusic';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import Home from './screens/Home';
 import Rave from './screens/Rave';
 import Record from './screens/Record';
-import { RootStackParamList } from './types/typesFile';
+import { persistor, store } from './store';
 
-const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const Navigator = () => {
   return (
@@ -20,56 +27,74 @@ const Navigator = () => {
         name='Home'
         component={Home}
         options={{
+          tabBarShowLabel: false,
           tabBarIcon: ({ size, focused, color }) => {
             return (
               <Image
-                style={{ width: size, height: size, aspectRatio: .8, resizeMode: 'contain' }}
+                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain' }}
                 source={require('./assets/Home.png')}
               />
             );
           },
         }}
       />
-      <Tab.Screen 
-        name='Record' 
-        component={Record} 
+      <Tab.Screen
+        name='Record'
+        component={Record}
         options={{
-          tabBarIcon: ({ size, focused, color}) => {
+          tabBarShowLabel: false,
+          tabBarIcon: ({ size, focused, color }) => {
             return (
-              <Image 
-                style={{ width: size, height: size, aspectRatio: .8, resizeMode: 'contain' }}
+              <Image
+                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain' }}
                 source={require('./assets/search.png')}
               />
-            )
-          }
+            );
+          },
         }}
       />
-      <Tab.Screen 
-        name="Rave" 
-        component={Rave} 
+      <Tab.Screen
+        name='Rave'
+        component={Rave}
         options={{
-          tabBarIcon: ({ size, focused, color}) => {
+          tabBarShowLabel: false,
+          tabBarIcon: ({ size, focused, color }) => {
             return (
-              <Image 
-                style={{ width: size, height: size, aspectRatio: .8, resizeMode: 'contain' }}
+              <Image
+                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain' }}
                 source={require('./assets/favorites.png')}
               />
-            )
-          }
+            );
+          },
         }}
       />
     </Tab.Navigator>
   );
 };
 
-const  App = () => {
+const App = () => {
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+  }, []);
+
+  const registerForPushNotificationsAsync = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access notifications was denied');
+      return;
+    }
+  };
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName='Home'>
-        <Stack.Screen name='Home' component={Navigator} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <NavigationContainer>
+          <Navigator />
+        </NavigationContainer>
+      </PersistGate>
+    </Provider>
   );
 };
 
 export default App;
+

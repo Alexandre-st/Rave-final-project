@@ -1,14 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, View } from 'react-native';
 
 const Rave = () => {
-  const navigation = useNavigation();
-
   return (
-    <Text>Rave</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Transfert au serveur pour ensuite écouter le résultat</Text>
+    </View>
   );
-}
- 
+};
+
 export default Rave;
