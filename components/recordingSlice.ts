@@ -1,18 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface Recording {
-  // Define the properties of a recording
+interface RecordingsState {
+  recordings: string[];
 }
+
+const initialState: RecordingsState = {
+  recordings: [],
+};
 
 const recordingsSlice = createSlice({
   name: 'recordings',
-  initialState: [] as Recording[],
+  initialState,
   reducers: {
-    addRecording: (state, action: PayloadAction<Recording>) => {
-      state.push(action.payload);
+    addRecording: (state, action: PayloadAction<string>) => {
+      state.recordings.push(action.payload);
     },
-    removeRecording: (state, action: PayloadAction<Recording>) => {
-      return state.filter((recording) => recording !== action.payload);
+    removeRecording: (state, action: PayloadAction<string>) => {
+      state.recordings = state.recordings.filter((recording) => recording !== action.payload);
     },
   },
 });

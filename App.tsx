@@ -72,7 +72,7 @@ const Navigator = () => {
   );
 };
 
-const App = () => {
+const App: React.FC = () => {
   useEffect(() => {
     registerForPushNotificationsAsync();
   }, []);
