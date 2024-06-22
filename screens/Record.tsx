@@ -10,10 +10,9 @@ const Record: React.FC = () => {
   const recordings = useSelector((state: RootState) => state.recordings.recordings);
   const dispatch = useDispatch();
   const [newRecordingName, setNewRecordingName] = useState<string>('');
-  const [sound, setSound] = useState<Audio.Sound | undefined>();
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
   const startRecording = async () => {
@@ -31,32 +30,48 @@ const Record: React.FC = () => {
       // Commencer l'enregistrement
       const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
       setRecording(recording);
+      setIsRecording(true); // Mise à jour de l'état isRecording
     } catch (err) {
       console.error(err);
     }
   };
 
   const stopRecording = async () => {
-    setIsRecording(false);
     if (!recording) return;
-    await recording.stopAndUnloadAsync();
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-    });
-    const uri = recording.getURI();
-    if (uri) setRecordingUri(uri);
+    setIsRecording(false);
+    try {
+      await recording.stopAndUnloadAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      });
+      const uri = recording.getURI();
+      if (uri) {
+        const newFileUri = `${FileSystem.documentDirectory}recordings/${newRecordingName}.m4a`;
+        await FileSystem.moveAsync({
+          from: uri,
+          to: newFileUri,
+        });
+        dispatch(addRecording(newRecordingName));
+      }
+    } catch (err) {
+      console.error(err);
+    }
     setRecording(null);
   };
 
-  async function playRecording() {
+  async function playRecording(uri: string) {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
     });
 
-    const { sound } = await Audio.Sound.createAsync({ uri: recordingUri });
-    setSound(sound);
+    if (sound) {
+      await sound.unloadAsync();
+    }
+
+    const { sound: newSound } = await Audio.Sound.createAsync({ uri });
+    setSound(newSound);
     console.log('Playing sound...');
-    await sound.playAsync();
+    await newSound.playAsync();
   }
 
   useEffect(() => {
@@ -69,25 +84,8 @@ const Record: React.FC = () => {
       : undefined;
   }, [sound]);
 
-  async function changeRecordingStatus() {
-    if (!isRecording) {
-      startRecording();
-    } else {
-      stopRecording();
-    }
-    setIsRecording(!isRecording);
-  }
-
-  async function handlePressOut() {
-    // Si on enregistrait, on arrête
-    // Sinon, on ne fait rien
-    if (isRecording) {
-      changeRecordingStatus();
-    }
-  }
-
   const deleteRecording = async (fileName: string) => {
-    await FileSystem.deleteAsync(`${FileSystem.documentDirectory}recordings/${fileName}`);
+    await FileSystem.deleteAsync(`${FileSystem.documentDirectory}recordings/${fileName}.m4a`);
     dispatch(removeRecording(fileName));
   };
 
@@ -109,7 +107,10 @@ const Record: React.FC = () => {
         renderItem={({ item }) => (
           <View style={styles.recordingItem}>
             <Text>{item}</Text>
-            <Button title='Play' onPress={() => playRecording()} />
+            <Button
+              title='Play'
+              onPress={() => playRecording(`${FileSystem.documentDirectory}recordings/${item}.m4a`)}
+            />
             <Button title='Delete' onPress={() => deleteRecording(item)} />
           </View>
         )}
