@@ -9,7 +9,7 @@ const Home = ({ navigation }: { navigation: NavigationProp<any> }) => {
 
   const testConnection = async () => {
     try {
-      const response = await fetch(`${ip}:${port}`); // http://127.0.0.1:8000 : résultat
+      const response = await fetch(`${ip}:${port}`);
       if (response.ok) {
         showNotification('Connection Successful!', 'You have successfully connected to the server.');
       } else {
@@ -37,6 +37,14 @@ const Home = ({ navigation }: { navigation: NavigationProp<any> }) => {
       <Text>Port:</Text>
       <TextInput style={styles.input} placeholder='Enter Port' value={port} onChangeText={setPort} />
       <Button title='Test Connection' onPress={testConnection} />
+
+      <View style={{marginTop: 40}}>
+        <Text>To connect to the app: </Text>
+        <View style={{marginTop: 20}}>
+          <Text>Server : http://192.168.1.88</Text>
+          <Text style={{marginTop: 10}}>Port : 8000</Text>
+        </View>
+      </View>
     </View>
   );
 };

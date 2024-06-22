@@ -1,12 +1,52 @@
 import * as FileSystem from 'expo-file-system';
 import * as Notifications from 'expo-notifications';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 
 const Rave: React.FC = () => {
+  // const recordings = useSelector((state: RootState) => state.recordings.recordings);
+  const [models, setModels] = useState<string[]>([]);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const recordings = useSelector((state: RootState) => state.recordings.recordings);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetchModels();
+  }, []);
+
+  const fetchModels = async () => {
+    try {
+      const response = await fetch('http://192.168.1.88:8000/getmodels');
+      if (!response.ok) {
+        throw new Error('Failed to fetch models');
+      }
+      const data = await response.json();
+      setModels(data.models);
+      console.log(data.models);
+      
+      showNotification('Success', 'Models fetched successfully');
+    } catch (error) {
+      console.error('Error fetching models', error);
+      showNotification('Error', 'Failed to fetch models');
+    }
+  };
+
+  const downloadModel = async (modelName: string) => {
+    setIsDownloading(true);
+    try {
+      const uri = `http://192.168.1.88:8000/selectModel/${modelName}`;
+      const fileUri = `${FileSystem.documentDirectory}${modelName}`;
+      const { uri: localUri } = await FileSystem.downloadAsync(uri, fileUri);
+      showNotification('Download Successful!', `Model ${modelName} downloaded successfully to ${localUri}`);
+    } catch (error) {
+      console.error('Error downloading model', error);
+      showNotification('Download Error', `Failed to download model ${modelName}`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const sendRecording = async (fileName: string) => {
     const fileUri = `${FileSystem.documentDirectory}recordings/${fileName}`;
@@ -51,13 +91,25 @@ const Rave: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Available Models</Text>
+      <FlatList
+        data={models}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.modelItem}>
+            <Text>{item}</Text>
+            <Button title="Download" onPress={() => downloadModel(item)} disabled={isDownloading} />
+          </View>
+        )}
+      />
+      <Text style={styles.title}>Recordings</Text>
       <FlatList
         data={recordings}
         keyExtractor={(item) => item}
         renderItem={({ item }) => (
           <View style={styles.recordingItem}>
             <Text>{item}</Text>
-            <Button title='Send' onPress={() => sendRecording(item)} />
+            <Button title="Send" onPress={() => sendRecording(item)} />
           </View>
         )}
       />
@@ -69,6 +121,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modelItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
   },
   recordingItem: {
     flexDirection: 'row',

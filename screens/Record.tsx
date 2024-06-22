@@ -9,8 +9,6 @@ import { RootState } from '../store';
 const Record: React.FC = () => {
   const recordings = useSelector((state: RootState) => state.recordings.recordings);
   const dispatch = useDispatch();
-  // const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  // const [isRecording, setIsRecording] = useState<boolean>(false);
   const [newRecordingName, setNewRecordingName] = useState<string>('');
   const [sound, setSound] = useState<Audio.Sound | undefined>();
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
@@ -36,9 +34,9 @@ const Record: React.FC = () => {
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 
-   const stopRecording = async () => {
+  const stopRecording = async () => {
     setIsRecording(false);
     if (!recording) return;
     await recording.stopAndUnloadAsync();
@@ -48,7 +46,7 @@ const Record: React.FC = () => {
     const uri = recording.getURI();
     if (uri) setRecordingUri(uri);
     setRecording(null);
-  }
+  };
 
   async function playRecording() {
     await Audio.setAudioModeAsync({
