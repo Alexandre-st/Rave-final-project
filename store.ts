@@ -4,6 +4,7 @@ import { combineReducers } from 'redux';
 import logger from 'redux-logger';
 import { persistReducer, persistStore } from 'redux-persist';
 import recordingsReducer from './components/recordingSlice';
+import serverInfoReducer from './components/serverInfoSlice';
 
 // Configuration de redux-persist
 const persistConfig = {
@@ -14,6 +15,7 @@ const persistConfig = {
 // Combiner les réducteurs
 const rootReducer = combineReducers({
   recordings: recordingsReducer,
+  serverInfo: serverInfoReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

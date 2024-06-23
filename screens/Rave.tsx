@@ -10,7 +10,9 @@ const Rave: React.FC = () => {
   const [models, setModels] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const recordings = useSelector((state: RootState) => state.recordings.recordings);
-  const dispatch = useDispatch();
+  const serverInfo = useSelector((state: RootState) => state.serverInfo);
+  
+  // const dispatch = useDispatch();
 
   useEffect(() => {
     fetchModels();
@@ -18,7 +20,7 @@ const Rave: React.FC = () => {
 
   const fetchModels = async () => {
     try {
-      const response = await fetch('http://192.168.1.88:8000/getmodels');
+      const response = await fetch(`${serverInfo.ip}:${serverInfo.port}/getmodels`);
       if (!response.ok) {
         throw new Error('Failed to fetch models');
       }
