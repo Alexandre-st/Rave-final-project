@@ -1,7 +1,8 @@
 import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useState } from 'react';
-import { Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { addRecording, removeRecording } from '../components/recordingSlice';
 import { RootState } from '../store';
@@ -14,8 +15,13 @@ const Record: React.FC = () => {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const startRecording = async () => {
+    if (!newRecordingName.trim()) {
+      Alert.alert('Error', 'Please enter a name for the recording.');
+      return;
+    }
     try {
       // Demander la permission d'accéder au micro
       const { status } = await Audio.requestPermissionsAsync();
@@ -36,10 +42,31 @@ const Record: React.FC = () => {
     }
   };
 
+  const pauseRecording = async () => {
+    if (!recording) return;
+    try {
+      await recording.pauseAsync();
+      setIsPaused(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const resumeRecording = async () => {
+    if (!recording) return;
+    try {
+      await recording.startAsync();
+      setIsPaused(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const stopRecording = async () => {
     if (!recording) return;
-    setIsRecording(false);
     try {
+      setIsRecording(false);
+      setIsPaused(false);
       await recording.stopAndUnloadAsync();
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
@@ -53,6 +80,7 @@ const Record: React.FC = () => {
         });
         dispatch(addRecording(newRecordingName));
       }
+      setNewRecordingName('');
     } catch (err) {
       console.error(err);
     }
@@ -91,27 +119,37 @@ const Record: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Button
-        title={isRecording ? 'Stop Recording' : 'Start Recording'}
-        onPress={isRecording ? stopRecording : startRecording}
-      />
       <TextInput
         style={styles.input}
         placeholder='Recording Name'
         value={newRecordingName}
         onChangeText={setNewRecordingName}
       />
+      <View style={styles.buttonContainer}>
+        {isRecording && (
+          <TouchableOpacity onPress={isPaused ? resumeRecording : pauseRecording} style={styles.button}>
+            <Icon name={isPaused ? 'play' : 'pause'} size={30} color='white' />
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity onPress={isRecording ? stopRecording : startRecording} style={styles.button}>
+          <Icon name={isRecording ? 'stop' : 'microphone'} size={30} color='white' />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={recordings}
         keyExtractor={(item) => item}
         renderItem={({ item }) => (
           <View style={styles.recordingItem}>
             <Text>{item}</Text>
-            <Button
-              title='Play'
+            <TouchableOpacity
               onPress={() => playRecording(`${FileSystem.documentDirectory}recordings/${item}.m4a`)}
-            />
-            <Button title='Delete' onPress={() => deleteRecording(item)} />
+              style={styles.iconButton}
+            >
+              <Icon name='play' size={20} color='blue' />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteRecording(item)} style={styles.iconButton}>
+              <Icon name='trash' size={20} color='red' />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -130,6 +168,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 50,
+  },
+  iconButton: {
+    padding: 10,
   },
   recordingItem: {
     flexDirection: 'row',
