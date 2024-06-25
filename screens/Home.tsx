@@ -5,19 +5,22 @@ import { Button, StyleSheet, Text, TextInput, ToastAndroid, View } from 'react-n
 import { useDispatch } from 'react-redux';
 import { setServerInfo } from '../components/serverInfoSlice';
 
-const Home = ({ navigation }: { navigation: NavigationProp<any> }) => {
+const Home = () => {
+  // Local state to register infos
   const [ip, setIp] = useState<string>('');
   const [port, setPort] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const dispatch = useDispatch();
 
+  // To save the server info in the reducer
   const saveServerInfo = () => {
     dispatch(setServerInfo({ ip, port }));
     setIsSaved(true);
     showNotification('Server Info Saved', `IP: ${ip}, Port: ${port}`);
   };
 
+  // To test the connection and send a notification
   const testConnection = async () => {
     try {
       const response = await fetch(`${ip}:${port}`);
@@ -32,6 +35,7 @@ const Home = ({ navigation }: { navigation: NavigationProp<any> }) => {
     }
   };
 
+  // To show the notification
   const showNotification = (title: string, body: string) => {
     Notifications.scheduleNotificationAsync({
       content: {
@@ -90,4 +94,3 @@ const styles = StyleSheet.create({
 });
 
 export default Home;
-

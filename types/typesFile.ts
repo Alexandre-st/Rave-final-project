@@ -13,3 +13,4 @@ type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 export type HomeProps = {
   navigation: HomeScreenNavigationProp;
 };
+

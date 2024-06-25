@@ -6,13 +6,13 @@ import { persistReducer, persistStore } from 'redux-persist';
 import recordingsReducer from './components/recordingSlice';
 import serverInfoReducer from './components/serverInfoSlice';
 
-// Configuration de redux-persist
+// Configuration of redux-persist
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
 };
 
-// Combiner les réducteurs
+// Combine the reducers
 const rootReducer = combineReducers({
   recordings: recordingsReducer,
   serverInfo: serverInfoReducer,
@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Configuration du store
+// Configure the store
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>

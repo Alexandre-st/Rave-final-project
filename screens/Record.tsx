@@ -8,6 +8,7 @@ import { addRecording, removeRecording } from '../components/recordingSlice';
 import { RootState } from '../store';
 
 const Record: React.FC = () => {
+  // Get the recordings from the reducer
   const recordings = useSelector((state: RootState) => state.recordings.recordings);
   const dispatch = useDispatch();
   const [newRecordingName, setNewRecordingName] = useState<string>('');
@@ -17,31 +18,33 @@ const Record: React.FC = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
 
+  // To start the recording
   const startRecording = async () => {
     if (!newRecordingName.trim()) {
       Alert.alert('Error', 'Please enter a name for the recording.');
       return;
     }
     try {
-      // Demander la permission d'accéder au micro
+      // Ask the permission to have the access of the mic.
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
         await requestPermission();
       }
-      // Autoriser enregistrement iOS
+      // Have the autorization to register on IOS
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
         allowsRecordingIOS: true,
       });
-      // Commencer l'enregistrement
+      // Begin the registration
       const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
       setRecording(recording);
-      setIsRecording(true); // Mise à jour de l'état isRecording
+      setIsRecording(true);
     } catch (err) {
       console.error(err);
     }
   };
 
+  // To pause the recording
   const pauseRecording = async () => {
     if (!recording) return;
     try {
@@ -52,6 +55,7 @@ const Record: React.FC = () => {
     }
   };
 
+  // To resume the recording when is pause
   const resumeRecording = async () => {
     if (!recording) return;
     try {
@@ -62,6 +66,7 @@ const Record: React.FC = () => {
     }
   };
 
+  // To stop definitively
   const stopRecording = async () => {
     if (!recording) return;
     try {
@@ -71,6 +76,7 @@ const Record: React.FC = () => {
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
       });
+      // Attribute an uri to the record and send it with a format in the storage
       const uri = recording.getURI();
       if (uri) {
         const newFileUri = `${FileSystem.documentDirectory}recordings/${newRecordingName}.m4a`;
@@ -80,6 +86,7 @@ const Record: React.FC = () => {
         });
         dispatch(addRecording(newRecordingName));
       }
+      // Reset the input 
       setNewRecordingName('');
     } catch (err) {
       console.error(err);
@@ -87,6 +94,7 @@ const Record: React.FC = () => {
     setRecording(null);
   };
 
+  // To play the fresh recording
   async function playRecording(uri: string) {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
@@ -112,6 +120,7 @@ const Record: React.FC = () => {
       : undefined;
   }, [sound]);
 
+  // To delete the recording
   const deleteRecording = async (fileName: string) => {
     await FileSystem.deleteAsync(`${FileSystem.documentDirectory}recordings/${fileName}.m4a`);
     dispatch(removeRecording(fileName));

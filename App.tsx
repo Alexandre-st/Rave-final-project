@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import { Image } from 'react-native';
+import 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import Home from './screens/Home';
@@ -10,6 +11,7 @@ import Rave from './screens/Rave';
 import Record from './screens/Record';
 import { persistor, store } from './store';
 
+// To create the Tabbar naivation
 const Tab = createBottomTabNavigator();
 
 Notifications.setNotificationHandler({
@@ -31,7 +33,8 @@ const Navigator = () => {
           tabBarIcon: ({ size, focused, color }) => {
             return (
               <Image
-                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain' }}
+                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain', tintColor: focused ? 'blue' : 'grey' }}
+                
                 source={require('./assets/Home.png')}
               />
             );
@@ -46,7 +49,7 @@ const Navigator = () => {
           tabBarIcon: ({ size, focused, color }) => {
             return (
               <Image
-                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain' }}
+                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain', tintColor: focused ? 'blue' : 'grey' }}
                 source={require('./assets/search.png')}
               />
             );
@@ -61,7 +64,7 @@ const Navigator = () => {
           tabBarIcon: ({ size, focused, color }) => {
             return (
               <Image
-                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain' }}
+                style={{ width: size, height: size, aspectRatio: 0.8, resizeMode: 'contain', tintColor: focused ? 'blue' : 'grey' }}
                 source={require('./assets/favorites.png')}
               />
             );
@@ -72,6 +75,7 @@ const Navigator = () => {
   );
 };
 
+// Render the all App
 const App: React.FC = () => {
   useEffect(() => {
     registerForPushNotificationsAsync();
@@ -97,4 +101,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
